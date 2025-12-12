@@ -58,7 +58,10 @@ function plugin_init_glpiwithbookstack()
     // Add Bookstack integration into menu but only if the settings are set
     // load plugin configuration
     $my_config = GlpiConfig::getConfigurationValues('plugin:Glpiwithbookstack');
-    if ($my_config['bookstack_url'] != '' AND $my_config['bookstack_token_id'] != '' AND $my_config['bookstack_token_secret'] != '')
+    if (isset($my_config['bookstack_url'], $my_config['bookstack_token_id'], $my_config['bookstack_token_secret']) 
+        && $my_config['bookstack_url'] != '' 
+        && $my_config['bookstack_token_id'] != '' 
+        && $my_config['bookstack_token_secret'] != '')
     {
         // Add tab for Bookstack in each ticket form
         Plugin::registerClass('PluginGlpiwithbookstackIntegrate', array('addtabon' => array('Ticket')));
