@@ -1,0 +1,49 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to static method getConfigurationValues\(\) on an unknown class Config\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/config.php
+
+		-
+			message: '#^Instantiated class Config not found\.$#'
+			identifier: class.notFound
+			count: 2
+			path: hook.php
+
+		-
+			message: '#^Call to an undefined static method PluginGlpiwithbookstackConfig\:\:createTabEntry\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Call to static method getConfigurationValues\(\) on an unknown class Config\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Call to an undefined static method PluginGlpiwithbookstackIntegrate\:\:createTabEntry\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: inc/integrate.class.php
+
+		-
+			message: '#^Call to static method getConfigurationValues\(\) on an unknown class Config\.$#'
+			identifier: class.notFound
+			count: 2
+			path: inc/integrate.class.php
+
+		-
+			message: '#^Access to undefined constant Glpi\\Plugin\\Hooks\:\:POST_ITEM_FORM\.$#'
+			identifier: classConstant.notFound
+			count: 1
+			path: setup.php
+
+		-
+			message: '#^Call to static method getConfigurationValues\(\) on an unknown class Config\.$#'
+			identifier: class.notFound
+			count: 1
+			path: setup.php
