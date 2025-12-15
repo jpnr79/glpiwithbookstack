@@ -13,7 +13,7 @@ class PluginGlpiwithbookstackIntegrate extends CommonGLPI
     {
 		// call function for search results and display number of results in tab
 		$config = new self();
-		$table_with_results = $config->getBookstackSearchResults($item->fields['itilcategories_id'] ?? '');
+		$table_with_results = $config->getBookstackSearchResults(($item->fields['itilcategories_id'] ?? ''));
 		$my_config = GlpiConfig::getConfigurationValues('plugin:Glpiwithbookstack');
         return self::createTabEntry($my_config['display_text_tab_name'], $table_with_results['total']);
     }
@@ -180,7 +180,7 @@ class PluginGlpiwithbookstackIntegrate extends CommonGLPI
 	{
 		// call function for search result and display
 		$config = new self();
-		$table_with_results = $config->getBookstackSearchResults($item->fields['itilcategories_id'] ?? '');
+		$table_with_results = $config->getBookstackSearchResults(($item->fields['itilcategories_id'] ?? ''));
 		echo $table_with_results['table'];
 		return true;
 	}
