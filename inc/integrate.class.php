@@ -176,14 +176,14 @@ class PluginGlpiwithbookstackIntegrate extends CommonGLPI
      * This function is called from GLPI to render the form when the user click
      *  on the menu item generated from getTabNameForItem()
     */
-    static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0)
-    {
+	public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0): bool
+	{
 		// call function for search result and display
 		$config = new self();
 		$table_with_results = $config->getBookstackSearchResults($item->fields['itilcategories_id']);
 		echo $table_with_results['table'];
-        return true;
-    }
+		return true;
+	}
 	/**
 		* Display contents at the begining of item forms.
 		*
