@@ -1,23 +1,4 @@
-   /**
-    * Return plugin configuration as associative array
-    * @param string $context (e.g. 'plugin:Glpiwithbookstack')
-    * @return array
-    */
-   public static function getConfigurationValues($context = 'plugin:Glpiwithbookstack') {
-      global $DB;
-      $config = [];
-      $res = $DB->request([
-         'FROM' => 'glpi_plugin_glpiwithbookstack_configs',
-         'WHERE' => []
-      ]);
-      if ($res && count($res)) {
-         foreach ($res as $row) {
-            $config[$row['name']] = $row['value'];
-         }
-      }
-      return $config;
-   }
-<?php
+
 if (!defined('GLPI_ROOT')) { define('GLPI_ROOT', realpath(__DIR__ . '/../..')); }
 
 /**
@@ -48,58 +29,47 @@ if (!defined('GLPI_ROOT')) { define('GLPI_ROOT', realpath(__DIR__ . '/../..')); 
  * -------------------------------------------------------------------------
  */
 
-use Config as GlpiConfig;
-use Dropdown;
-use Html;
-use Session;
-use Toolbox;
+
 
 class PluginGlpiwithbookstackConfig extends CommonGLPI {
 
    static protected $notable = true;
 
    /**
+    * Return plugin configuration as associative array
+    * @param string $context (e.g. 'plugin:Glpiwithbookstack')
+    * @return array
+    */
+   public static function getConfigurationValues($context = 'plugin:Glpiwithbookstack') {
+      global $DB;
+      $config = [];
+      $res = $DB->request([
+         'FROM' => 'glpi_plugin_glpiwithbookstack_configs',
+         'WHERE' => []
+      ]);
+      if ($res && count($res)) {
+         foreach ($res as $row) {
+            $config[$row['name']] = $row['value'];
+         }
+      }
+      return $config;
+   }
+
+   /**
      * This function is called from GLPI to allow the plugin to insert one or more item
      *  inside the left menu of a Itemtype.
     */
-    function getTabNameForItem(CommonGLPI $item, $withtemplate=0)
-    {
-        return self::createTabEntry('Config');
-    }
+   function getTabNameForItem(CommonGLPI $item, $withtemplate=0)
+   {
+      return __('Config', 'glpiwithbookstack');
+   }
 
    static function configUpdate($input) {
       $input['configuration'] = 1 - $input['configuration'];
       return $input;
    }
 
-   function showFormExample() {
-      global $CFG_GLPI;
-
-      if (!Session::haveRight("config", UPDATE)) {
-         return false;
-      }
-
-      $my_config = GlpiConfig::getConfigurationValues('plugin:Example');
-
-      echo "<form name='form' action=\"".Toolbox::getItemTypeFormURL('Config')."\" method='post'>";
-      echo "<div class='center' id='tabsbody'>";
-      echo "<table class='tab_cadre_fixe'>";
-      echo "<tr><th colspan='4'>" . __('Example setup') . "</th></tr>";
-      echo "<td >" . __('My boolean choice :') . "</td>";
-      echo "<td colspan='3'>";
-      echo "<input type='hidden' name='config_class' value='".__CLASS__."'>";
-      echo "<input type='hidden' name='config_context' value='plugin:Example'>";
-      Dropdown::showYesNo("configuration", $my_config['configuration']);
-      echo "</td></tr>";
-
-      echo "<tr class='tab_bg_2'>";
-      echo "<td colspan='4' class='center'>";
-      echo "<input type='submit' name='update' class='submit' value=\""._sx('button', 'Save')."\">";
-      echo "</td></tr>";
-
-      echo "</table></div>";
-      Html::closeForm();
-   }
+   // function showFormExample() { ... } // Remove stub, not used
 
    static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
       if ($item->getType() == 'Config') {

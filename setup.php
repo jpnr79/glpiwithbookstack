@@ -1,5 +1,7 @@
 <?php
+
 if (!defined('GLPI_ROOT')) { define('GLPI_ROOT', realpath(__DIR__ . '/../..')); }
+require_once __DIR__ . '/inc/config.class.php';
 
 /**
  * -------------------------------------------------------------------------
