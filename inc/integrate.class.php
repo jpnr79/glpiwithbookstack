@@ -1,7 +1,8 @@
 <?php
 if (!defined('GLPI_ROOT')) { define('GLPI_ROOT', realpath(__DIR__ . '/../..')); }
 
-use Config as GlpiConfig;
+
+require_once __DIR__ . '/config.class.php';
 
 class PluginGlpiwithbookstackIntegrate extends CommonGLPI
 {
@@ -14,7 +15,7 @@ class PluginGlpiwithbookstackIntegrate extends CommonGLPI
 		// call function for search results and display number of results in tab
 		$config = new self();
 		$table_with_results = $config->getBookstackSearchResults(($item->fields['itilcategories_id'] ?? ''));
-		$my_config = GlpiConfig::getConfigurationValues('plugin:Glpiwithbookstack');
+		$my_config = PluginGlpiwithbookstackConfig::getConfigurationValues('plugin:Glpiwithbookstack');
         return self::createTabEntry($my_config['display_text_tab_name'], $table_with_results['total']);
     }
     /**
@@ -25,7 +26,7 @@ class PluginGlpiwithbookstackIntegrate extends CommonGLPI
 	function getBookstackSearchResults($categoryid)
 	{
 		// load plugin configuration
-		$my_config = GlpiConfig::getConfigurationValues('plugin:Glpiwithbookstack');
+		$my_config = PluginGlpiwithbookstackConfig::getConfigurationValues('plugin:Glpiwithbookstack');
 		// set some data from the config as variables
 		$bookstack_url = $my_config['bookstack_url'];
 		$bookstack_token = [$my_config['bookstack_token_id'], $my_config['bookstack_token_secret']];

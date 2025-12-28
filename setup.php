@@ -30,10 +30,8 @@ if (!defined('GLPI_ROOT')) { define('GLPI_ROOT', realpath(__DIR__ . '/../..')); 
  * --------------------------------------------------------------------------
  */
 
-use Config as GlpiConfig;
-use Glpi\Plugin\Hooks;
-use GlpiPlugin\Glpiwithbookstack\TicketForm;
-use GlpiPlugin\Glpiwithbookstack\TicketIntegration;
+
+require_once __DIR__ . '/inc/config.class.php';
 
 define('PLUGIN_GLPIWITHBOOKSTACK_VERSION', '1.3.1');
 
@@ -58,7 +56,7 @@ function plugin_init_glpiwithbookstack()
     }
     // Add Bookstack integration into menu but only if the settings are set
     // load plugin configuration
-    $my_config = GlpiConfig::getConfigurationValues('plugin:Glpiwithbookstack');
+    $my_config = PluginGlpiwithbookstackConfig::getConfigurationValues('plugin:Glpiwithbookstack');
     if (isset($my_config['bookstack_url'], $my_config['bookstack_token_id'], $my_config['bookstack_token_secret']) 
         && $my_config['bookstack_url'] != '' 
         && $my_config['bookstack_token_id'] != '' 
@@ -67,7 +65,7 @@ function plugin_init_glpiwithbookstack()
         // Add tab for Bookstack in each ticket form
         Plugin::registerClass('PluginGlpiwithbookstackIntegrate', array('addtabon' => array('Ticket')));
         // Add Bookstack search result in ticket new form
-        $PLUGIN_HOOKS[Hooks::POST_ITEM_FORM]['glpiwithbookstack'] = ['PluginGlpiwithbookstackIntegrate', 'postTicketForm'];
+        $PLUGIN_HOOKS['post_item_form']['glpiwithbookstack'] = ['PluginGlpiwithbookstackIntegrate', 'postTicketForm'];
     }
     // TODO: create page for integrated Bookstack search
     // Add a link at top level menu for Bookstack
@@ -105,7 +103,34 @@ function plugin_version_glpiwithbookstack()
  */
 function plugin_glpiwithbookstack_check_prerequisites()
 {
-    return true;
+    $min_version = defined('PLUGIN_GLPIWITHBOOKSTACK_MIN_GLPI_VERSION') ? PLUGIN_GLPIWITHBOOKSTACK_MIN_GLPI_VERSION : '10.0.0';
+    $glpi_version = '0.0.0';
+    $version_file = GLPI_ROOT . '/version';
+    if (file_exists($version_file)) {
+        $glpi_version = trim(file_get_contents($version_file));
+    }
+    $ok = version_compare($glpi_version, $min_version, '>=');
+    if (!$ok) {
+        $msg = sprintf(
+            'ERROR [setup.php:plugin_glpiwithbookstack_check_prerequisites] GLPI version %s < required %s, user=%s',
+            $glpi_version,
+            $min_version,
+            $_SESSION['glpiname'] ?? 'unknown'
+        );
+        // Try Toolbox::logInFile, fallback to file log
+        try {
+            if (class_exists('Toolbox') && method_exists('Toolbox', 'logInFile')) {
+                Toolbox::logInFile('glpiwithbookstack', $msg);
+            } else {
+                $logfile = GLPI_ROOT . '/files/_log/glpiwithbookstack-error.log';
+                @file_put_contents($logfile, $msg."\n", FILE_APPEND);
+            }
+        } catch (\Throwable $e) {
+            $logfile = GLPI_ROOT . '/files/_log/glpiwithbookstack-error.log';
+            @file_put_contents($logfile, $msg."\n", FILE_APPEND);
+        }
+    }
+    return $ok;
 }
 
 /**
