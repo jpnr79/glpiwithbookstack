@@ -1,7 +1,7 @@
 <?php
 
 if (!defined('GLPI_ROOT')) { define('GLPI_ROOT', realpath(__DIR__ . '/../..')); }
-require_once __DIR__ . '/inc/config.class.php';
+require_once __DIR__ . '/inc/plugin_glpiwithbookstackconfig.class.php';
 
 /**
  * -------------------------------------------------------------------------
@@ -119,15 +119,13 @@ function plugin_glpiwithbookstack_check_prerequisites()
             $min_version,
             $_SESSION['glpiname'] ?? 'unknown'
         );
-        // Try Toolbox::logInFile, fallback to file log
-        try {
-            if (class_exists('Toolbox') && method_exists('Toolbox', 'logInFile')) {
-                Toolbox::logInFile('glpiwithbookstack', $msg);
-            } else {
-                $logfile = GLPI_ROOT . '/files/_log/glpiwithbookstack-error.log';
-                @file_put_contents($logfile, $msg."\n", FILE_APPEND);
-            }
-        } catch (\Throwable $e) {
+        // Try to load Toolbox if not loaded
+        if (!class_exists('Toolbox') && file_exists(GLPI_ROOT . '/src/Toolbox.php')) {
+            require_once GLPI_ROOT . '/src/Toolbox.php';
+        }
+        if (class_exists('Toolbox') && method_exists('Toolbox', 'logInFile')) {
+            Toolbox::logInFile('glpiwithbookstack', $msg);
+        } else {
             $logfile = GLPI_ROOT . '/files/_log/glpiwithbookstack-error.log';
             @file_put_contents($logfile, $msg."\n", FILE_APPEND);
         }
