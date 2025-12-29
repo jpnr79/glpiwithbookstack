@@ -4,6 +4,17 @@
  * @return bool
  */
 function plugin_glpiwithbookstack_install() {
+            // Helper for logging
+            if (!function_exists('glpiwithbookstack_log')) {
+                function glpiwithbookstack_log($msg) {
+                    if (class_exists('Toolbox') && method_exists('Toolbox', 'logInFile')) {
+                        Toolbox::logInFile('glpiwithbookstack', $msg);
+                    } else {
+                        error_log('[glpiwithbookstack] ' . $msg);
+                    }
+                }
+            }
+            glpiwithbookstack_log('Checking for configs table existence in database glpidb');
         // Always ensure the configs table exists, even if SQL file is missing or not executed
         $table = 'glpi_plugin_glpiwithbookstack_configs';
         $check = $DB->request([
@@ -14,13 +25,20 @@ function plugin_glpiwithbookstack_install() {
             ]
         ]);
         if (!($check && count($check))) {
-            $DB->request("CREATE TABLE IF NOT EXISTS `$table` (
+            $sql = "CREATE TABLE IF NOT EXISTS `$table` (
                 `id` int(11) NOT NULL AUTO_INCREMENT,
                 `name` varchar(255) NOT NULL,
                 `value` text DEFAULT NULL,
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `name` (`name`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
+            glpiwithbookstack_log('Attempting to create configs table with SQL: ' . $sql);
+            try {
+                $DB->request($sql);
+                glpiwithbookstack_log('Table creation SQL executed.');
+            } catch (Exception $e) {
+                glpiwithbookstack_log('ERROR during table creation: ' . $e->getMessage());
+            }
         }
     global $DB;
     $sqlfile = __DIR__ . '/sql/install.sql';
