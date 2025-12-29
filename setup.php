@@ -4,6 +4,24 @@
  * @return bool
  */
 function plugin_glpiwithbookstack_install() {
+        // Always ensure the configs table exists, even if SQL file is missing or not executed
+        $table = 'glpi_plugin_glpiwithbookstack_configs';
+        $check = $DB->request([
+            'FROM' => 'information_schema.tables',
+            'WHERE' => [
+                'table_schema' => 'glpidb', // Set to your actual DB name if different
+                'table_name'   => $table
+            ]
+        ]);
+        if (!($check && count($check))) {
+            $DB->request("CREATE TABLE IF NOT EXISTS `$table` (
+                `id` int(11) NOT NULL AUTO_INCREMENT,
+                `name` varchar(255) NOT NULL,
+                `value` text DEFAULT NULL,
+                PRIMARY KEY (`id`),
+                UNIQUE KEY `name` (`name`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+        }
     global $DB;
     $sqlfile = __DIR__ . '/sql/install.sql';
     if (file_exists($sqlfile)) {
@@ -11,7 +29,7 @@ function plugin_glpiwithbookstack_install() {
         foreach (explode(';', $query) as $statement) {
             $statement = trim($statement);
             if ($statement) {
-                $DB->query($statement);
+                $DB->request($statement);
             }
         }
     }
