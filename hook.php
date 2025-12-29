@@ -37,25 +37,45 @@ if (!defined('GLPI_ROOT')) { define('GLPI_ROOT', realpath(__DIR__ . '/../..')); 
  */
 function plugin_glpiwithbookstack_install()
 {
-    $config = new Config();
-    $config->setConfigurationValues('plugin:Glpiwithbookstack', ['bookstack_url' => '']);
-    $config->setConfigurationValues('plugin:Glpiwithbookstack', ['bookstack_token_id' => '']);
-    $config->setConfigurationValues('plugin:Glpiwithbookstack', ['bookstack_token_secret' => '']);
-    $config->setConfigurationValues('plugin:Glpiwithbookstack', ['search_in_tags_only' => false]);
-    $config->setConfigurationValues('plugin:Glpiwithbookstack', ['search_type_pages_only' => true]);
-    $config->setConfigurationValues('plugin:Glpiwithbookstack', ['search_category_name_only' => false]);
-    $config->setConfigurationValues('plugin:Glpiwithbookstack', ['search_category_completename_but_only_visible' => true]);
-    $config->setConfigurationValues('plugin:Glpiwithbookstack', ['curl_timeout' => 1]);
-    $config->setConfigurationValues('plugin:Glpiwithbookstack', ['curl_ssl_verifypeer' => true]);
-    $config->setConfigurationValues('plugin:Glpiwithbookstack', ['display_max_search_results' => 10]);
-    $config->setConfigurationValues('plugin:Glpiwithbookstack', ['display_text_tab_name' => 'Knowledge base']);
-    $config->setConfigurationValues('plugin:Glpiwithbookstack', ['display_text_title' => 'Title']);
-    $config->setConfigurationValues('plugin:Glpiwithbookstack', ['display_text_content_preview' => 'Content preview']);
-    $config->setConfigurationValues('plugin:Glpiwithbookstack', ['display_text_search_on_bookstack' => 'Search [search_term] on Bookstack']);
-    $config->setConfigurationValues('plugin:Glpiwithbookstack', ['display_text_max_results_reached' => '[result_count] of [max_results] results are displayed. Click here to view all: [url]']);
+    global $DB;
+    // Run SQL install script to create configs table
+    $sqlfile = __DIR__ . '/sql/install.sql';
+    if (file_exists($sqlfile)) {
+        $query = file_get_contents($sqlfile);
+        foreach (explode(';', $query) as $statement) {
+            $statement = trim($statement);
+            if ($statement) {
+                $DB->request($statement);
+            }
+        }
+    }
 
-    //ProfileRight::addProfileRights(['glpiwithbookstack:read']);
-
+    // Set default config values
+    // Insert default config values directly
+    $defaults = [
+        'bookstack_url' => '',
+        'bookstack_token_id' => '',
+        'bookstack_token_secret' => '',
+        'search_in_tags_only' => '0',
+        'search_type_pages_only' => '1',
+        'search_category_name_only' => '0',
+        'search_category_completename_but_only_visible' => '1',
+        'curl_timeout' => '1',
+        'curl_ssl_verifypeer' => '1',
+        'display_max_search_results' => '10',
+        'display_text_tab_name' => 'Knowledge base',
+        'display_text_title' => 'Title',
+        'display_text_content_preview' => 'Content preview',
+        'display_text_search_on_bookstack' => 'Search [search_term] on Bookstack',
+        'display_text_max_results_reached' => '[result_count] of [max_results] results are displayed. Click here to view all: [url]'
+    ];
+    global $DB;
+    foreach ($defaults as $name => $value) {
+        $name_esc = addslashes($name);
+        $value_esc = addslashes($value);
+        $sql = "INSERT IGNORE INTO glpi_plugin_glpiwithbookstack_configs (name, value) VALUES ('{$name_esc}', '{$value_esc}')";
+        $DB->request($sql);
+    }
     return true;
 }
 
@@ -66,22 +86,9 @@ function plugin_glpiwithbookstack_install()
  */
 function plugin_glpiwithbookstack_uninstall()
 {
-    $config = new Config();
-    $config->deleteConfigurationValues('plugin:Glpiwithbookstack', ['bookstack_url']);
-    $config->deleteConfigurationValues('plugin:Glpiwithbookstack', ['bookstack_token_id']);
-    $config->deleteConfigurationValues('plugin:Glpiwithbookstack', ['bookstack_token_secret']);
-    $config->deleteConfigurationValues('plugin:Glpiwithbookstack', ['search_in_tags_only']);
-    $config->deleteConfigurationValues('plugin:Glpiwithbookstack', ['search_category_name_only']);
-    $config->deleteConfigurationValues('plugin:Glpiwithbookstack', ['search_type_pages_only']);
-    $config->deleteConfigurationValues('plugin:Glpiwithbookstack', ['search_category_completename_but_only_visible']);
-    $config->deleteConfigurationValues('plugin:Glpiwithbookstack', ['curl_timeout']);
-    $config->deleteConfigurationValues('plugin:Glpiwithbookstack', ['curl_ssl_verifypeer']);
-    $config->deleteConfigurationValues('plugin:Glpiwithbookstack', ['display_max_search_results']);
-    $config->deleteConfigurationValues('plugin:Glpiwithbookstack', ['display_text_tab_name']);
-    $config->deleteConfigurationValues('plugin:Glpiwithbookstack', ['display_text_title']);
-    $config->deleteConfigurationValues('plugin:Glpiwithbookstack', ['display_text_content_preview']);
-    $config->deleteConfigurationValues('plugin:Glpiwithbookstack', ['display_text_search_on_bookstack']);
-    $config->deleteConfigurationValues('plugin:Glpiwithbookstack', ['display_text_max_results_reached']);
+    // Remove all config values directly
+    global $DB;
+    $DB->request("DELETE FROM glpi_plugin_glpiwithbookstack_configs");
 
     //ProfileRight::deleteProfileRights(['glpiwithbookstack:read']);
     return true;
