@@ -1,3 +1,22 @@
+/**
+ * Install process for the plugin
+ *
+ * @return bool
+ */
+function plugin_glpiwithbookstack_install() {
+    global $DB;
+    $sqlfile = __DIR__ . '/sql/install.sql';
+    if (file_exists($sqlfile)) {
+        $query = file_get_contents($sqlfile);
+        foreach (explode(';', $query) as $statement) {
+            $statement = trim($statement);
+            if ($statement) {
+                $DB->query($statement);
+            }
+        }
+    }
+    return true;
+}
 <?php
 
 if (!defined('GLPI_ROOT')) { define('GLPI_ROOT', realpath(__DIR__ . '/../..')); }
