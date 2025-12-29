@@ -106,12 +106,14 @@ function plugin_version_glpiwithbookstack()
 function plugin_glpiwithbookstack_check_prerequisites()
 {
     $min_version = defined('PLUGIN_GLPIWITHBOOKSTACK_MIN_GLPI_VERSION') ? PLUGIN_GLPIWITHBOOKSTACK_MIN_GLPI_VERSION : '10.0.0';
-    $glpi_version = '0.0.0';
+    $glpi_version = 'unknown';
     $version_file = GLPI_ROOT . '/version';
-    if (file_exists($version_file)) {
+    if (is_file($version_file)) {
         $glpi_version = trim(file_get_contents($version_file));
+    } elseif (defined('GLPI_VERSION')) {
+        $glpi_version = constant('GLPI_VERSION');
     }
-    $ok = version_compare($glpi_version, $min_version, '>=');
+    $ok = ($glpi_version !== 'unknown') && version_compare($glpi_version, $min_version, '>=');
     if (!$ok) {
         $msg = sprintf(
             'ERROR [setup.php:plugin_glpiwithbookstack_check_prerequisites] GLPI version %s < required %s, user=%s',
